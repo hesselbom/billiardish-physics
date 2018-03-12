@@ -1,6 +1,6 @@
 {
   "name": "billiardish-physics",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/index.js",
   "author": "Viktor Hesselbom <viktor@hesselbom.net>",
   "license": "MIT",
@@ -14,7 +14,11 @@
   "scripts": {
     "build": "rollup -c",
     "example": "parcel example/index.html",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/hesselbom/billiardish-physics.git"
   },
   "standard": {
     "ignore": [
