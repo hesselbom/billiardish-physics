@@ -1,0 +1,24 @@
+{
+  "name": "billiardish-physics",
+  "version": "0.1.0",
+  "main": "lib/index.js",
+  "author": "Viktor Hesselbom <viktor@hesselbom.net>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "parcel-bundler": "^1.6.2",
+    "rollup": "^0.56.5",
+    "rollup-plugin-babel": "^3.0.3"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "example": "parcel example/index.html",
+    "prepublish": "npm run build"
+  },
+  "standard": {
+    "ignore": [
+      "dist"
+    ]
+  }
+}
