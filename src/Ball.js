@@ -9,5 +9,6 @@ export default (x, y, radius, mass = 1, drag = 1) => ({
   mass,
   invMass: 1 / mass,
   radius,
-  radiusSquared: radius * radius
+  radiusSquared: radius * radius,
+  collisionFilter: { category: 1, mask: -1 }
 })

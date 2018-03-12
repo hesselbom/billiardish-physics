@@ -69,17 +69,19 @@ Collision.test = (objects, listeners) => {
       if (a === b) continue
 
       if (a.type === 'ball' && b.type === 'ball') {
-        if (Collision.testBallToBall(a, b)) {
-          if (!Pair.isActive(a, b)) {
-            if (listeners['collisionStart']) {
-              listeners['collisionStart'].forEach(cb => cb(a, b))
+        if ((a.collisionFilter.category & b.collisionFilter.mask) !== 0 && (b.collisionFilter.category & a.collisionFilter.mask) !== 0) {
+          if (Collision.testBallToBall(a, b)) {
+            if (!Pair.isActive(a, b)) {
+              if (listeners['collisionStart']) {
+                listeners['collisionStart'].forEach(cb => cb(a, b))
+              }
+              Pair.setActive(a, b, true)
             }
-            Pair.setActive(a, b, true)
+
+            Collision.resolveBallToBall(a, b, listeners)
+
+            activePairIds.push(Pair.id(a, b))
           }
-
-          Collision.resolveBallToBall(a, b, listeners)
-
-          activePairIds.push(Pair.id(a, b))
         }
       } else if (a.type === 'ball' && b.type === 'box') {
         if (Collision.testBallToBox(a, b)) {

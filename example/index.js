@@ -37,7 +37,14 @@ world.on('collisionStart', (a, b) => {
 
 const ball = Physics.Ball(0, 80, 10)
 ball.velocity.y = -8
+// ball.collisionFilter.category = 2
+// ball.collisionFilter.mask = 1
 world.objects.push(ball)
+
+// const ball2 = Physics.Ball(5, -80, 10)
+// ball2.collisionFilter.category = 2
+// world.objects.push(ball2)
+
 world.objects.push(Physics.Ball(5, -80, 10))
 world.objects.push(Physics.Box(0, -160, 500, 40))
 world.objects.push(Physics.Box(0, 160, 500, 40))
