@@ -57,4 +57,14 @@ Vector.dot = (a, b) => (
   (a.x * b.x) + (a.y * b.y)
 )
 
+Vector.lerp = (a, b, alpha) => (
+  Vector.add(
+    a,
+    Vector.multScalar(
+      Vector.sub(b, a),
+      alpha
+    )
+  )
+)
+
 export default Vector
