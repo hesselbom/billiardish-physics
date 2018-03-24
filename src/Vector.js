@@ -67,4 +67,21 @@ Vector.lerp = (a, b, alpha) => (
   )
 )
 
+Vector.clamp = (v, min, max) => {
+  const mag = Vector.magnitude(v)
+  return Vector.multScalar(
+    Vector.divScalar(v, mag || 1),
+    Math.max(min, Math.min(max, mag))
+  )
+}
+
+Vector.angle = (v) => (
+  Math.atan2(v.y, v.x)
+)
+
+Vector.fromAngle = (rad) => ({
+  x: Math.cos(rad),
+  y: Math.sin(rad)
+})
+
 export default Vector

@@ -19,6 +19,10 @@ const render = () => {
         ctx.arc(o.position.x, o.position.y, o.radius, 0, 2 * Math.PI)
         break
       }
+      case 'boundary-circle': {
+        ctx.arc(0, 0, o.radius, 0, 2 * Math.PI)
+        break
+      }
       case 'box': {
         ctx.rect(o.dimensions.x, o.dimensions.y, o.dimensions.w, o.dimensions.h)
         break
@@ -36,7 +40,9 @@ world.on('collisionStart', (a, b) => {
 })
 
 const ball = Physics.Ball(0, 80, 10)
-ball.velocity.y = -8
+// ball.velocity.y = -8
+ball.velocity.x = -4
+ball.velocity.y = -4
 // ball.collisionFilter.category = 2
 // ball.collisionFilter.mask = 1
 world.objects.push(ball)
@@ -46,10 +52,11 @@ world.objects.push(ball)
 // world.objects.push(ball2)
 
 world.objects.push(Physics.Ball(5, -80, 10))
-world.objects.push(Physics.Box(0, -160, 500, 40))
-world.objects.push(Physics.Box(0, 160, 500, 40))
-world.objects.push(Physics.Box(-160, 0, 40, 500))
-world.objects.push(Physics.Box(160, 0, 40, 500))
+// world.objects.push(Physics.Box(0, -160, 500, 40))
+// world.objects.push(Physics.Box(0, 160, 500, 40))
+// world.objects.push(Physics.Box(-160, 0, 40, 500))
+// world.objects.push(Physics.Box(160, 0, 40, 500))
+world.objects.push(Physics.BoundaryCircle(200))
 
 // for (let i = -125; i < 100; i += 22) {
 //   for (let j = -80; j < -20; j += 22) {

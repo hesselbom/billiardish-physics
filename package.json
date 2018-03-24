@@ -1,6 +1,6 @@
 {
   "name": "billiardish-physics",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "main": "lib/index.js",
   "author": "Viktor Hesselbom <viktor@hesselbom.net>",
   "license": "MIT",

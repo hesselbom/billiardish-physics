@@ -3,6 +3,14 @@ import Pair from './Pair'
 
 let Collision = {}
 
+const velocityFromSurfaceNormal = (n, v) => {
+  // From https://stackoverflow.com/a/573206/511949
+  const u = V.multScalar(n, (V.dot(v, n) / V.dot(n, n)))
+  const w = V.sub(v, u)
+
+  return V.sub(w, u)
+}
+
 Collision.testBallToBall = (a, b) => (
   V.distanceSquared(a.position, b.position) < (a.radius + b.radius) * (a.radius + b.radius)
 )
@@ -50,15 +58,22 @@ Collision.resolveBallToBox = (ball, box) => {
   const cy = Math.max(Math.min(ball.position.y, box.dimensions.y + box.dimensions.h), box.dimensions.y)
   const v = { x: ball.position.x - cx, y: ball.position.y - cy }
   const dist = V.magnitude(v)
-  const v2 = V.normalize(v)
-  const push = V.multScalar(v2, ball.radius - dist)
+  const surfaceNormal = V.normalize(v)
+  const push = V.multScalar(surfaceNormal, ball.radius - dist)
 
-  if (ball.velocity.y < 0 && v2.y > 0) ball.velocity.y = -ball.velocity.y
-  if (ball.velocity.y > 0 && v2.y < 0) ball.velocity.y = -ball.velocity.y
-  if (ball.velocity.x < 0 && v2.x > 0) ball.velocity.x = -ball.velocity.x
-  if (ball.velocity.x > 0 && v2.x < 0) ball.velocity.x = -ball.velocity.x
+  ball.velocity = velocityFromSurfaceNormal(surfaceNormal, ball.velocity)
+  ball.position = V.add(ball.position, push)
+}
 
-  V.add(ball.position, push)
+Collision.testBallToBoundaryCircle = (ball, boundary) => (
+  V.magnitudeSquared(ball.position) > (boundary.radius - ball.radius) * (boundary.radius - ball.radius)
+)
+
+Collision.resolveBallToBoundaryCircle = (ball, boundary) => {
+  const surfaceNormal = V.normalize({ x: -ball.position.x, y: -ball.position.y })
+  ball.velocity = velocityFromSurfaceNormal(surfaceNormal, ball.velocity)
+
+  ball.position = V.clamp(ball.position, 0, boundary.radius - ball.radius)
 }
 
 Collision.test = (objects, listeners) => {
@@ -82,6 +97,10 @@ Collision.test = (objects, listeners) => {
 
             activePairIds.push(Pair.id(a, b))
           }
+        }
+      } else if (a.type === 'ball' && b.type === 'boundary-circle') {
+        if (Collision.testBallToBoundaryCircle(a, b)) {
+          Collision.resolveBallToBoundaryCircle(a, b)
         }
       } else if (a.type === 'ball' && b.type === 'box') {
         if (Collision.testBallToBox(a, b)) {
