@@ -16,6 +16,21 @@ Collision.testBallToBall = (a, b) => (
 )
 
 Collision.resolveBallToBall = (a, b, listeners) => {
+  // Handle static ball
+  if (a.mass === Infinity || b.mass === Infinity) {
+    const ball = a.mass === Infinity ? b : a
+    const staticBall = ball === a ? b : a
+
+    const surfaceNormal = V.normalize({
+      x: staticBall.position.x - ball.position.x,
+      y: staticBall.position.y - ball.position.y
+    })
+    const pushDir = V.invert(surfaceNormal)
+    ball.velocity = velocityFromSurfaceNormal(surfaceNormal, ball.velocity)
+    ball.position = V.add(staticBall.position, V.multScalar(pushDir, staticBall.radius + ball.radius))
+    return
+  }
+
   const delta = V.sub(a.position, b.position)
   const d = V.magnitude(delta)
 
@@ -72,7 +87,6 @@ Collision.testBallToBoundaryCircle = (ball, boundary) => (
 Collision.resolveBallToBoundaryCircle = (ball, boundary) => {
   const surfaceNormal = V.normalize({ x: -ball.position.x, y: -ball.position.y })
   ball.velocity = velocityFromSurfaceNormal(surfaceNormal, ball.velocity)
-
   ball.position = V.clamp(ball.position, 0, boundary.radius - ball.radius)
 }
 

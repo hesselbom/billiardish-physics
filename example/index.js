@@ -39,9 +39,9 @@ world.on('collisionStart', (a, b) => {
   console.log('collision')
 })
 
-const ball = Physics.Ball(0, 80, 10)
+const ball = Physics.Ball(4, 80, 10)
 // ball.velocity.y = -8
-ball.velocity.x = -4
+// ball.velocity.x = -4
 ball.velocity.y = -4
 // ball.collisionFilter.category = 2
 // ball.collisionFilter.mask = 1
@@ -52,6 +52,8 @@ world.objects.push(ball)
 // world.objects.push(ball2)
 
 world.objects.push(Physics.Ball(5, -80, 10))
+world.objects.push(Physics.Ball(0, 0, 30, Infinity))
+world.objects.push(Physics.Ball(80, 80, 20, Infinity))
 // world.objects.push(Physics.Box(0, -160, 500, 40))
 // world.objects.push(Physics.Box(0, 160, 500, 40))
 // world.objects.push(Physics.Box(-160, 0, 40, 500))

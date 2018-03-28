@@ -84,4 +84,9 @@ Vector.fromAngle = (rad) => ({
   y: Math.sin(rad)
 })
 
+Vector.invert = (v) => ({
+  x: -v.x,
+  y: -v.y
+})
+
 export default Vector
