@@ -81,13 +81,122 @@ Collision.resolveBallToBox = (ball, box) => {
 }
 
 Collision.testBallToBoundaryCircle = (ball, boundary) => (
-  V.magnitudeSquared(ball.position) > (boundary.radius - ball.radius) * (boundary.radius - ball.radius)
+  ball.mass !== Infinity &&
+  V.magnitudeSquared(ball.position) >
+    (boundary.radius - ball.radius) * (boundary.radius - ball.radius)
 )
 
 Collision.resolveBallToBoundaryCircle = (ball, boundary) => {
   const surfaceNormal = V.normalize({ x: -ball.position.x, y: -ball.position.y })
   ball.velocity = velocityFromSurfaceNormal(surfaceNormal, ball.velocity)
   ball.position = V.clamp(ball.position, 0, boundary.radius - ball.radius)
+}
+
+Collision.testBallToBoundaryRectangle = (ball, {w, h, radius}) => {
+  if (ball.mass === Infinity) return false
+
+  if (radius <= 0) {
+    return (
+      ball.position.x < w / -2 + ball.radius ||
+      ball.position.x > w / 2 - ball.radius ||
+      ball.position.y < h / -2 + ball.radius ||
+      ball.position.y > h / 2 - ball.radius
+    )
+  }
+
+  let btmLeftCorner = { x: w / -2 + radius, y: h / 2 - radius }
+  let btmRightCorner = { x: w / 2 - radius, y: h / 2 - radius }
+  let topLeftCorner = { x: w / -2 + radius, y: h / -2 + radius }
+  let topRightCorner = { x: w / 2 - radius, y: h / -2 + radius }
+
+  if (ball.position.x < btmLeftCorner.x && ball.position.y > btmLeftCorner.y) {
+    return V.magnitudeSquared(V.sub(ball.position, btmLeftCorner)) >
+      (radius - ball.radius) * (radius - ball.radius)
+  }
+  if (ball.position.x > btmRightCorner.x && ball.position.y > btmRightCorner.y) {
+    return V.magnitudeSquared(V.sub(ball.position, btmRightCorner)) >
+      (radius - ball.radius) * (radius - ball.radius)
+  }
+  if (ball.position.x < topLeftCorner.x && ball.position.y < topLeftCorner.y) {
+    return V.magnitudeSquared(V.sub(ball.position, topLeftCorner)) >
+      (radius - ball.radius) * (radius - ball.radius)
+  }
+  if (ball.position.x > topRightCorner.x && ball.position.y < topRightCorner.y) {
+    return V.magnitudeSquared(V.sub(ball.position, topRightCorner)) >
+      (radius - ball.radius) * (radius - ball.radius)
+  }
+
+  return (
+    ball.position.x < w / -2 + ball.radius ||
+    ball.position.x > w / 2 - ball.radius ||
+    ball.position.y < h / -2 + ball.radius ||
+    ball.position.y > h / 2 - ball.radius
+  )
+}
+
+Collision.resolveBallToBoundaryRectangle = (ball, {w, h, radius}) => {
+  let surfaceNormal
+  let btmLeftCorner = { x: w / -2 + radius, y: h / 2 - radius }
+  let btmRightCorner = { x: w / 2 - radius, y: h / 2 - radius }
+  let topLeftCorner = { x: w / -2 + radius, y: h / -2 + radius }
+  let topRightCorner = { x: w / 2 - radius, y: h / -2 + radius }
+
+  if (
+    ball.position.x < btmLeftCorner.x &&
+    ball.position.y > btmLeftCorner.y &&
+    V.magnitudeSquared(V.sub(ball.position, btmLeftCorner)) > (radius - ball.radius) * (radius - ball.radius)
+  ) {
+    let ballPos = V.sub(ball.position, btmLeftCorner)
+    surfaceNormal = V.normalize({ x: -ballPos.x, y: -ballPos.y })
+    ballPos = V.clamp(ballPos, 0, radius - ball.radius)
+    ball.position = V.add(ballPos, btmLeftCorner)
+  } else if (
+    ball.position.x > btmRightCorner.x &&
+    ball.position.y > btmRightCorner.y &&
+    V.magnitudeSquared(V.sub(ball.position, btmRightCorner)) > (radius - ball.radius) * (radius - ball.radius)
+  ) {
+    let ballPos = V.sub(ball.position, btmRightCorner)
+    surfaceNormal = V.normalize({ x: -ballPos.x, y: -ballPos.y })
+    ballPos = V.clamp(ballPos, 0, radius - ball.radius)
+    ball.position = V.add(ballPos, btmRightCorner)
+  } else if (
+    ball.position.x < topLeftCorner.x &&
+    ball.position.y < topLeftCorner.y &&
+    V.magnitudeSquared(V.sub(ball.position, topLeftCorner)) > (radius - ball.radius) * (radius - ball.radius)
+  ) {
+    let ballPos = V.sub(ball.position, topLeftCorner)
+    surfaceNormal = V.normalize({ x: -ballPos.x, y: -ballPos.y })
+    ballPos = V.clamp(ballPos, 0, radius - ball.radius)
+    ball.position = V.add(ballPos, topLeftCorner)
+  } else if (
+    ball.position.x > topRightCorner.x &&
+    ball.position.y < topRightCorner.y &&
+    V.magnitudeSquared(V.sub(ball.position, topRightCorner)) > (radius - ball.radius) * (radius - ball.radius)
+  ) {
+    let ballPos = V.sub(ball.position, topRightCorner)
+    surfaceNormal = V.normalize({ x: -ballPos.x, y: -ballPos.y })
+    ballPos = V.clamp(ballPos, 0, radius - ball.radius)
+    ball.position = V.add(ballPos, topRightCorner)
+  } else {
+    surfaceNormal = V.normalize({
+      x: (
+        ball.position.x < w / -2 + ball.radius ? 1
+        : ball.position.x > w / 2 - ball.radius ? -1
+        : 0
+      ),
+      y: (
+        ball.position.y < h / -2 + ball.radius ? 1
+        : ball.position.y > h / 2 - ball.radius ? -1
+        : 0
+      )
+    })
+  }
+  ball.velocity = velocityFromSurfaceNormal(surfaceNormal, ball.velocity)
+
+  if (ball.position.x < w / -2 + ball.radius) ball.position.x = w / -2 + ball.radius
+  if (ball.position.x > w / 2 - ball.radius) ball.position.x = w / 2 - ball.radius
+  if (ball.position.y < h / -2 + ball.radius) ball.position.y = h / -2 + ball.radius
+  if (ball.position.y > h / 2 - ball.radius) ball.position.y = h / 2 - ball.radius
 }
 
 Collision.test = (objects, listeners) => {
@@ -115,6 +224,10 @@ Collision.test = (objects, listeners) => {
       } else if (a.type === 'ball' && b.type === 'boundary-circle') {
         if (Collision.testBallToBoundaryCircle(a, b)) {
           Collision.resolveBallToBoundaryCircle(a, b)
+        }
+      } else if (a.type === 'ball' && b.type === 'boundary-rectangle') {
+        if (Collision.testBallToBoundaryRectangle(a, b)) {
+          Collision.resolveBallToBoundaryRectangle(a, b)
         }
       } else if (a.type === 'ball' && b.type === 'box') {
         if (Collision.testBallToBox(a, b)) {
